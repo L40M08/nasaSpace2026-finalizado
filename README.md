@@ -142,6 +142,14 @@ python -m venv .venv
 La app se abre en `http://localhost:8501`. En macOS o Linux, cambia
 `.\.venv\Scripts\python.exe` por `.venv/bin/python`.
 
+Si tu Windows tiene desactivadas las animaciones (Configuración → Accesibilidad
+→ Efectos visuales → Efectos de animación), Brave pide movimiento reducido y la
+interfaz no anima nada, por accesibilidad. Para una demo:
+
+- `http://localhost:8501/?movimiento=completo` enciende las animaciones solo en
+  esa pestaña (se recuerdan hasta cerrarla).
+- `http://localhost:8501/?movimiento=normal` las vuelve a apagar.
+
 Para correr las pruebas:
 
 ```powershell

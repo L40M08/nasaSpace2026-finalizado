@@ -1143,10 +1143,13 @@ code {
 
 /* --- Movimiento reducido ------------------------------------------------- */
 
+/* La preferencia del sistema manda salvo en el modo demo explícito
+   (`?movimiento=completo`), que añade `fe1-movimiento-forzado` al elemento
+   raíz del documento. */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  html:not(.fe1-movimiento-forzado) *,
+  html:not(.fe1-movimiento-forzado) *::before,
+  html:not(.fe1-movimiento-forzado) *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;

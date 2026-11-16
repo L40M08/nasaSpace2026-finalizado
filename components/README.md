@@ -30,6 +30,9 @@ Aquí vive lo que se repite en varias pantallas. No hay lógica de datos.
 - Todo el movimiento vive en `movimiento.py`. Las clases que ocultan contenido
   (`fe1-revelar`) solo las pone el guion: sin JavaScript la página se ve
   completa, y con `prefers-reduced-motion` no se anima nada.
+- Para demos con las animaciones de Windows apagadas existe
+  `?movimiento=completo`: enciende el movimiento en esa pestaña aunque el
+  sistema pida movimiento reducido; `?movimiento=normal` lo apaga.
 - Usar las clases `fe1-*` que ya existen (`.fe1-hero`, `.fe1-badge`, etc.).
 
 ## Reglas

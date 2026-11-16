@@ -127,6 +127,21 @@ def test_el_movimiento_reducido_anula_animaciones(css: str) -> None:
     assert "transition-duration: 0.001ms !important" in bloque
 
 
+def test_el_modo_demo_escapa_del_movimiento_reducido(css: str) -> None:
+    # `?movimiento=completo` pone la clase en <html>; el bloque de movimiento
+    # reducido no debe alcanzarla.
+    assert "html:not(.fe1-movimiento-forzado) *," in css
+    assert "html:not(.fe1-movimiento-forzado) *::before," in css
+    assert "html:not(.fe1-movimiento-forzado) *::after" in css
+
+
+def test_el_css_no_rompe_el_guion_que_lo_instala(css: str) -> None:
+    # La hoja viaja dentro de un <script> inline. Un `<` literal en un
+    # comentario (por ejemplo `<html>`) hace que el saneador de HTML descarte
+    # el bloque entero y la app se quede sin estilos.
+    assert "<" not in css
+
+
 def test_las_tarjetas_y_los_mapas_reservan_su_espacio(css: str) -> None:
     # Streamlit 1.67 ya no usa `stVerticalBlockBorderWrapper` para los
     # contenedores con borde: la clave de la tarjeta es el selector vigente.

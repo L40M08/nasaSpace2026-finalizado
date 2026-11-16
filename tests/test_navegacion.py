@@ -104,7 +104,21 @@ def test_el_movimiento_respeta_menos_movimiento() -> None:
     # Sin JavaScript o con movimiento reducido no se oculta nada: la clase que
     # esconde bloques solo la añade el guion, nunca el HTML de la página.
     assert 'classList.add("fe1-revelar")' in texto
-    assert "if (!observador || MENOS.matches) return;" in texto
+    assert "if (!observador || !animar()) return;" in texto
+    assert "!MENOS.matches ||" in texto
+
+
+def test_el_modo_demo_enciende_el_movimiento_solo_si_se_pide() -> None:
+    texto = MOVIMIENTO.read_text(encoding="utf-8")
+    # Opt-in explícito por URL; nunca se activa solo.
+    assert 'new URLSearchParams(location.search).get("movimiento")' in texto
+    assert 'const FORZADO = "fe1-movimiento-forzado";' in texto
+    assert "document.documentElement.classList.add(FORZADO)" in texto
+    # El modo dura en la pestaña: una recarga no lo apaga por sorpresa.
+    assert 'sessionStorage.setItem(CLAVE, "completo")' in texto
+    assert 'sessionStorage.removeItem(CLAVE)' in texto
+    # No se descubre de golpe lo que el guion acaba de ocultar.
+    assert "|| document.documentElement.classList.contains(FORZADO)) {" in texto
 
 
 def test_el_revelado_no_oculta_lo_que_ya_se_ve() -> None:

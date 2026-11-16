@@ -2,7 +2,7 @@
 
 Dueño: Frontend.
 
-Todo el movimiento vive en un solo lugar y se apoya en dos reglas:
+Todo el movimiento vive en un solo lugar y se apoya en tres reglas:
 
 1. **Nada de contenido invisible sin JavaScript.** Las clases que ocultan un
    bloque (`fe1-revelar`) las pone el propio guion cuando ya puede observar el
@@ -10,6 +10,10 @@ Todo el movimiento vive en un solo lugar y se apoya en dos reglas:
 2. **`prefers-reduced-motion` manda.** Si la persona pidió menos movimiento,
    no se añaden clases de animación y lo que ya estaba oculto se muestra de
    inmediato.
+3. **Excepción explícita para demos.** `?movimiento=completo` enciende las
+   animaciones aunque el sistema pida movimiento reducido y las mantiene en
+   esa pestaña; `?movimiento=normal` las apaga. Es opt-in: sin ese parámetro
+   se sigue respetando la preferencia del sistema.
 """
 
 from __future__ import annotations
@@ -24,6 +28,27 @@ MOVIMIENTO = """
 
   const MENOS = window.matchMedia("(prefers-reduced-motion: reduce)");
   const ESTRECHO = window.matchMedia("(max-width: 760px)");
+  const FORZADO = "fe1-movimiento-forzado";
+  const CLAVE = "fe1-movimiento";
+
+  // Modo demo explícito: se activa solo si la URL lo pide y queda guardado en
+  // la pestaña para que una recarga no lo apague por sorpresa.
+  const pedido = new URLSearchParams(location.search).get("movimiento");
+  let guardado = null;
+  try {
+    if (pedido === "completo") sessionStorage.setItem(CLAVE, "completo");
+    if (pedido === "normal") sessionStorage.removeItem(CLAVE);
+    guardado = sessionStorage.getItem(CLAVE);
+  } catch (error) {
+    /* Sin almacenamiento el modo demo dura solo esta vista. */
+  }
+  if (pedido === "completo" || guardado === "completo") {
+    document.documentElement.classList.add(FORZADO);
+  }
+
+  const animar = () =>
+    !MENOS.matches || document.documentElement.classList.contains(FORZADO);
+
   const main = () => document.querySelector('[data-testid="stMain"]');
   const hero = () => document.querySelector('[data-testid="stMain"] .fe1-hero');
 
@@ -34,7 +59,7 @@ MOVIMIENTO = """
 
   function entrada() {
     const contenedor = main();
-    if (!contenedor || MENOS.matches) return;
+    if (!contenedor || !animar()) return;
     contenedor.classList.remove("fe1-entrando");
     void contenedor.offsetWidth;
     contenedor.classList.add("fe1-entrando");
@@ -49,7 +74,7 @@ MOVIMIENTO = """
 
   function menu() {
     const lista = document.querySelector('[data-testid="stSidebarNavItems"]');
-    if (!lista || MENOS.matches) return;
+    if (!lista || !animar()) return;
     lista.classList.remove("fe1-menu-entra");
     void lista.offsetWidth;
     lista.classList.add("fe1-menu-entra");
@@ -100,7 +125,7 @@ MOVIMIENTO = """
   let ultimoBarrido = 0;
 
   function preparar() {
-    if (!observador || MENOS.matches) return;
+    if (!observador || !animar()) return;
     const ahora = performance.now();
     if (ahora - ultimoBarrido < 120) return;
     ultimoBarrido = ahora;
@@ -204,11 +229,14 @@ MOVIMIENTO = """
 
   if (MENOS.addEventListener) {
     MENOS.addEventListener("change", (evento) => {
-      if (evento.matches) {
-        document
-          .querySelectorAll(".fe1-revelar")
-          .forEach((el) => el.classList.add("fe1-revelado"));
+      // Con el modo demo encendido la preferencia del sistema no manda: no
+      // hay que descubrir de golpe lo que el guion acaba de ocultar.
+      if (!evento.matches || document.documentElement.classList.contains(FORZADO)) {
+        return;
       }
+      document
+        .querySelectorAll(".fe1-revelar")
+        .forEach((el) => el.classList.add("fe1-revelado"));
     });
   }
 
