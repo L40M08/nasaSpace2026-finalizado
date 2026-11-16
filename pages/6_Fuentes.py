@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from components.ui import aplicar_estilos, encabezado
+from components.ui import encabezado
 from core import datos
 
 ENLACES_OFICIALES = [
@@ -25,7 +25,6 @@ st.set_page_config(
     page_icon="📚",
     layout="wide",
 )
-aplicar_estilos()
 encabezado(
     "Fuentes",
     "Cada dato de la app se puede rastrear a una página oficial de NASA. "
@@ -68,4 +67,4 @@ st.subheader("Enlaces oficiales del proyecto")
 for titulo, url in ENLACES_OFICIALES:
     st.markdown(f"- [{titulo}]({url})")
 
-st.page_link("app.py", label="Volver al inicio", icon=":material/keyboard_double_arrow_left:")
+st.page_link("pages/0_Inicio.py", label="Volver al inicio", icon=":material/keyboard_double_arrow_left:")

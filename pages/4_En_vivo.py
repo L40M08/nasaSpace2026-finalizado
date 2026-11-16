@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from components.ui import aplicar_estilos, encabezado
+from components.ui import encabezado
 from core import datos, formato, vivo
 
 ESTADOS = {
@@ -22,7 +22,6 @@ st.set_page_config(
     page_icon="📡",
     layout="wide",
 )
-aplicar_estilos()
 encabezado(
     "En vivo",
     "Cuánto han viajado estas naves y cuánto tarda su señal en llegar a la "
@@ -72,4 +71,4 @@ for pieza in conectadas:
     st.caption(pieza.get("ubicacion_texto", ""))
     st.divider()
 
-st.page_link("app.py", label="Volver al inicio", icon=":material/keyboard_double_arrow_left:")
+st.page_link("pages/0_Inicio.py", label="Volver al inicio", icon=":material/keyboard_double_arrow_left:")

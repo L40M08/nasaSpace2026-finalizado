@@ -2,11 +2,10 @@
 
 import streamlit as st
 
-from components.ui import aplicar_estilos, encabezado
+from components.ui import encabezado
 from core import datos, quiz
 
 st.set_page_config(page_title="Quiz — ¿Dónde está ahora?", page_icon="🧠", layout="wide")
-aplicar_estilos()
 encabezado(
     "Quiz",
     "Pon a prueba tu curiosidad con 30 preguntas sobre las máquinas exploradoras.",
@@ -53,13 +52,16 @@ if partida is None:
 elif len(partida["respuestas"]) < len(partida["preguntas"]):
     indice = len(partida["respuestas"])
     pregunta = partida["preguntas"][indice]
-    st.progress(indice / 30, text=f"Pregunta {indice + 1} de 30")
+    with st.container(key="quiz_progreso"):
+        st.progress(indice / 30, text=f"Pregunta {indice + 1} de 30")
     if indice:
         anterior = partida["preguntas"][indice - 1]
         if partida["respuestas"][-1] == anterior["correcta"]:
-            st.success("¡Respuesta anterior correcta!")
+            with st.container(key="quiz_feedback_ok"):
+                st.success("¡Respuesta anterior correcta!")
         else:
-            st.info(f"Respuesta anterior: {anterior['correcta']}")
+            with st.container(key="quiz_feedback_ko"):
+                st.info(f"Respuesta anterior: {anterior['correcta']}")
     with st.container(key="quiz_pregunta"):
         st.subheader(pregunta["pregunta"], anchor=False)
         st.caption("Elige una respuesta. Avanzarás automáticamente.")
@@ -93,4 +95,4 @@ else:
                 st.markdown(f"[{fuente['titulo']}]({fuente['url']})")
             st.divider()
 
-st.page_link("app.py", label="Volver al inicio", icon=":material/keyboard_double_arrow_left:")
+st.page_link("pages/0_Inicio.py", label="Volver al inicio", icon=":material/keyboard_double_arrow_left:")

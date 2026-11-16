@@ -5,13 +5,55 @@ Dueño: Frontend.
 
 from __future__ import annotations
 
+import json
 from html import escape
 from pathlib import Path
 
 import streamlit as st
 
+from components.movimiento import MOVIMIENTO
+
 RAIZ = Path(__file__).resolve().parent.parent
 ARCHIVO_CSS = RAIZ / "assets" / "styles.css"
+
+# La hoja completa se instala una vez en <head> y se guarda en la sesión del
+# navegador. En los reruns solo se comprueba que siga ahí: no se vuelven a
+# enviar 30 KB ni se reordena el contenido.
+INSTALAR_ESTILOS = """
+<script>
+(() => {
+  const CSS = __CSS__;
+  try {
+    sessionStorage.setItem("fe1-css", CSS);
+  } catch (error) {
+    /* Sin almacenamiento la hoja igual se instala en esta vista. */
+  }
+  if (document.getElementById("fe1-estilos")) return;
+  const hoja = document.createElement("style");
+  hoja.id = "fe1-estilos";
+  hoja.textContent = CSS;
+  document.head.appendChild(hoja);
+})();
+</script>
+"""
+
+RESTAURAR_ESTILOS = """
+<script>
+(() => {
+  if (document.getElementById("fe1-estilos")) return;
+  try {
+    const css = sessionStorage.getItem("fe1-css");
+    if (!css) return;
+    const hoja = document.createElement("style");
+    hoja.id = "fe1-estilos";
+    hoja.textContent = css;
+    document.head.appendChild(hoja);
+  } catch (error) {
+    /* Si el navegador bloquea el almacenamiento, se sigue sin la hoja. */
+  }
+})();
+</script>
+"""
 
 # Crédito que se pinta bajo el texto de los encabezados con foto real.
 CREDITOS = {
@@ -117,18 +159,30 @@ COPIAR_ANCLAS = """
 
 
 def aplicar_estilos() -> None:
-    """Inyecta `assets/styles.css` y el copiador de anclas en la página actual.
+    """Instala la hoja de estilos y el movimiento de la interfaz.
 
-    Streamlit vuelve a ejecutar cada página por separado, así que hay que
-    llamarla al principio de cada archivo de `pages/`.
+    `app.py` la llama una sola vez antes de `st.navigation().run()`. La hoja
+    vive en `<head>`, así que sobrevive a los reruns y a los cambios de vista;
+    por eso las páginas de `pages/` ya no la vuelven a inyectar.
     """
     if not ARCHIVO_CSS.exists():
         return
-    st.markdown(
-        f"<style>{ARCHIVO_CSS.read_text(encoding='utf-8')}</style>",
-        unsafe_allow_html=True,
+
+    if st.session_state.get("_fe1_estilos"):
+        # El documento sigue vivo entre vistas: solo se repone la hoja si
+        # hiciera falta. Los guiones ya están instalados y no se reenvían en
+        # cada interacción (cada respuesta del quiz es un rerun).
+        st.html(RESTAURAR_ESTILOS, unsafe_allow_javascript=True)
+        return
+
+    st.session_state["_fe1_estilos"] = True
+    css = json.dumps(ARCHIVO_CSS.read_text(encoding="utf-8"))
+    st.html(
+        INSTALAR_ESTILOS.replace("__CSS__", css),
+        unsafe_allow_javascript=True,
     )
     st.html(COPIAR_ANCLAS, unsafe_allow_javascript=True)
+    st.html(MOVIMIENTO, unsafe_allow_javascript=True)
 
 
 def encabezado(

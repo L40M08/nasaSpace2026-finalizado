@@ -1,17 +1,18 @@
-"""Página de inicio de «¿Dónde está ahora?».
+"""Punto de entrada de «¿Dónde está ahora?».
 
 Dueño: Frontend.
-Aquí no hay lógica de datos: se usa `core.datos` y se pinta.
+
+La app usa `st.navigation`: una sola página real (`app.py`) que cambia de
+vista sin recargar el documento. Eso evita el parpadeo y el salto de scroll
+que produce la navegación multipágina clásica, y permite que la hoja de
+estilos y el JavaScript vivan una sola vez en el documento.
 """
 
 from __future__ import annotations
 
 import streamlit as st
 
-from components.tarjeta import tarjeta
-from components.sistema_solar import sistema_solar
-from components.ui import aplicar_estilos, encabezado
-from core import datos
+from components.ui import aplicar_estilos
 
 st.set_page_config(
     page_title="¿Dónde está ahora?",
@@ -19,45 +20,21 @@ st.set_page_config(
     layout="wide",
 )
 
+# Los estilos se inyectan en <head> una sola vez por sesión. Al cambiar de
+# vista no se vuelven a analizar 30 KB de CSS ni se reordena el contenido.
 aplicar_estilos()
 
-encabezado(
-    "¿Dónde está ahora?",
-    "Un viaje por las máquinas que la NASA dejó en la Luna, en Marte y en el "
-    "espacio profundo. Todavía están ahí. Algunas siguen hablando.",
-    variante="inicio",
-    grande=True,
-)
+PAGINAS = [
+    st.Page("pages/0_Inicio.py", title="Inicio", icon="🚀", default=True),
+    st.Page("pages/1_Luna.py", title="La Luna", icon="🌕"),
+    st.Page("pages/2_Marte.py", title="Marte", icon="🔴"),
+    st.Page("pages/3_Espacio_profundo.py", title="Espacio profundo", icon="🌌"),
+    st.Page("pages/4_En_vivo.py", title="En vivo", icon="📡"),
+    st.Page("pages/5_Quiz.py", title="Quiz", icon="🧠"),
+    st.Page("pages/6_Fuentes.py", title="Fuentes", icon="📚"),
+    # La ficha solo tiene sentido con una pieza elegida: no ocupa un lugar
+    # en el menú, pero sigue disponible para `st.switch_page`.
+    st.Page("pages/7_Ficha.py", title="Ficha", icon="🛰️", visibility="hidden"),
+]
 
-piezas = datos.cargar_piezas()
-
-if not piezas:
-    st.warning(
-        "Todavía no hay datos cargados. Backend debe generar `data/artifacts.json` "
-        "con `python scripts/fichas_a_json.py`."
-    )
-    st.stop()
-
-zonas = datos.contar_por_zona(piezas)
-columnas = st.columns(4)
-columnas[0].metric("Piezas en total", len(piezas))
-columnas[1].metric("En la Luna", zonas["luna"])
-columnas[2].metric("En Marte", zonas["marte"])
-columnas[3].metric("En el espacio profundo", zonas["espacio_profundo"])
-
-sistema_solar()
-
-st.subheader("Algunas de las piezas")
-
-destacadas = [pieza for pieza in piezas if pieza.get("estado") == "activo"][:3]
-if not destacadas:
-    destacadas = piezas[:3]
-
-for pieza in destacadas:
-    tarjeta(pieza)
-
-st.divider()
-st.caption(
-    "Proyecto del NASA Space Apps Challenge 2026. Datos de NASA, NSSDCA y JPL. "
-    "No está afiliado a NASA."
-)
+st.navigation(PAGINAS).run()

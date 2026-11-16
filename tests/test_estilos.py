@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import tomllib
 from pathlib import Path
 
@@ -98,6 +99,40 @@ def test_el_css_tiene_foco_visible_y_movimiento_reducido(css: str) -> None:
     assert ":focus-visible" in css
     assert "prefers-reduced-motion" in css
     assert "min-height: 2.7rem" in css
+
+
+def test_el_css_trae_las_animaciones_de_la_interfaz(css: str) -> None:
+    for clave in (
+        "fe1-entrada-pagina",
+        "fe1-menu-entra",
+        "fe1-acierto",
+        "fe1-fallo",
+        "fe1-revelar",
+        "fe1-progreso",
+    ):
+        assert clave in css, f"Falta la animación {clave}"
+
+
+def test_el_revelado_solo_oculta_mientras_el_guion_lo_pide(css: str) -> None:
+    # La clase `fe1-revelar` la pone JavaScript; sin ella el contenido se ve.
+    oculto = re.search(r"\.fe1-revelar \{(.*?)\}", css, re.S)
+    assert oculto and "opacity: 0" in oculto.group(1)
+    visible = re.search(r"\.fe1-revelar\.fe1-revelado \{(.*?)\}", css, re.S)
+    assert visible and "opacity: 1" in visible.group(1)
+
+
+def test_el_movimiento_reducido_anula_animaciones(css: str) -> None:
+    bloque = css[css.index("prefers-reduced-motion: reduce") :]
+    assert "animation-duration: 0.001ms !important" in bloque
+    assert "transition-duration: 0.001ms !important" in bloque
+
+
+def test_las_tarjetas_y_los_mapas_reservan_su_espacio(css: str) -> None:
+    # Streamlit 1.67 ya no usa `stVerticalBlockBorderWrapper` para los
+    # contenedores con borde: la clave de la tarjeta es el selector vigente.
+    assert '[class*="st-key-tarjeta_"]' in css
+    assert "aspect-ratio: 4 / 3" in css
+    assert "aspect-ratio: 1600 / 764" in css
 
 
 def test_el_aviso_de_enlace_copiado_es_legible(css: str) -> None:

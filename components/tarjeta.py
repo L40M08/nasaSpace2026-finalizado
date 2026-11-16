@@ -16,7 +16,8 @@ RAIZ = Path(__file__).resolve().parent.parent
 
 def tarjeta(pieza: dict[str, Any], *, mostrar_boton: bool = True) -> None:
     """Pinta una pieza. Si la imagen no existe, muestra un marcador de posición."""
-    with st.container(border=True):
+    clave = str(pieza.get("id") or "pieza")
+    with st.container(border=True, key=f"tarjeta_{clave}"):
         imagen, texto = st.columns([1, 2.4])
 
         with imagen:

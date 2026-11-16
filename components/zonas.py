@@ -12,7 +12,7 @@ import streamlit as st
 
 from components.mapa import mapa_zona
 from components.tarjeta import tarjeta
-from components.ui import aplicar_estilos, encabezado
+from components.ui import encabezado
 from core import datos
 
 SIN_PIEZAS = (
@@ -27,14 +27,13 @@ def pagina_zona(zona: str, titulo: str, descripcion: str, icono: str) -> None:
         page_icon=icono,
         layout="wide",
     )
-    aplicar_estilos()
     encabezado(titulo, descripcion, variante=zona.replace("_", "-"))
 
     piezas = datos.por_zona(datos.cargar_piezas(), zona)
 
     if not piezas:
         st.info(SIN_PIEZAS)
-        st.page_link("app.py", label="Volver al inicio", icon=":material/keyboard_double_arrow_left:")
+        st.page_link("pages/0_Inicio.py", label="Volver al inicio", icon=":material/keyboard_double_arrow_left:")
         return
 
     mapa_zona(zona, piezas, datos.cargar_posiciones())

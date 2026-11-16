@@ -93,9 +93,9 @@ El protocolo completo está en [docs/FUENTES.md](docs/FUENTES.md).
 
 ```
 nasaSpace2026/
-├─ app.py                    # entrada de Streamlit (FE)
+├─ app.py                    # punto de entrada y menú (st.navigation) (FE)
 ├─ pages/                    # una pantalla por archivo (FE)
-├─ components/               # tarjetas, mapa y estilos reutilizables (FE)
+├─ components/               # tarjetas, mapa, estilos y movimiento (FE)
 ├─ contenido/
 │  └─ fichas.csv             # fichas de las 10 piezas (Investigación)
 ├─ scripts/

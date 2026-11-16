@@ -10,7 +10,6 @@ from pathlib import Path
 
 import streamlit as st
 
-from components.ui import aplicar_estilos
 from core import datos, formato, vivo
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -34,7 +33,6 @@ st.set_page_config(
     page_icon="🛰️",
     layout="wide",
 )
-aplicar_estilos()
 
 pieza_id = st.session_state.get("pieza_sel")
 pieza = datos.buscar(datos.cargar_piezas(), pieza_id) if pieza_id else None
@@ -52,15 +50,15 @@ if pieza is None:
         st.page_link("pages/2_Marte.py", label="Marte", icon="🔴")
     with columnas[2]:
         st.page_link("pages/3_Espacio_profundo.py", label="Espacio profundo", icon="🌌")
-    st.page_link("app.py", label="Volver al inicio", icon=":material/keyboard_double_arrow_left:")
+    st.page_link("pages/0_Inicio.py", label="Volver al inicio", icon=":material/keyboard_double_arrow_left:")
     st.stop()
 
 zona = pieza.get("zona", "")
 pagina_zona, nombre_zona = ZONA_A_PAGINA.get(
-    zona, ("app.py", "Inicio")
+    zona, ("pages/0_Inicio.py", "Inicio")
 )
 
-with st.container():
+with st.container(key="ficha_cabecera"):
     st.markdown(
         f'<span class="fe1-badge fe1-badge--{pieza.get("estado", "perdido")}">'
         f'{pieza.get("etiqueta_estado", "Sin estado")}</span>',
@@ -119,22 +117,24 @@ with st.container(key="historia_ficha"):
     for clave, titulo in BLOQUES:
         texto = historia.get(clave)
         if texto:
-            st.subheader(titulo)
-            st.write(texto)
+            with st.container(key=f"ficha_bloque_{clave}"):
+                st.subheader(titulo)
+                st.write(texto)
 
 st.divider()
 
-st.subheader("Fuentes")
-fuentes = pieza.get("fuentes") or []
-if not fuentes:
-    st.warning("Esta ficha todavía no tiene fuentes registradas.")
-for fuente in fuentes:
-    titulo = fuente.get("titulo") or "Fuente sin título"
-    url = fuente.get("url") or ""
-    if url:
-        st.markdown(f"- [{titulo}]({url})")
-    else:
-        st.markdown(f"- {titulo}")
+with st.container(key="ficha_fuentes"):
+    st.subheader("Fuentes")
+    fuentes = pieza.get("fuentes") or []
+    if not fuentes:
+        st.warning("Esta ficha todavía no tiene fuentes registradas.")
+    for fuente in fuentes:
+        titulo = fuente.get("titulo") or "Fuente sin título"
+        url = fuente.get("url") or ""
+        if url:
+            st.markdown(f"- [{titulo}]({url})")
+        else:
+            st.markdown(f"- {titulo}")
 
 st.caption(
     f"Revisó: {pieza.get('revisor', 'pendiente')} · "
@@ -147,4 +147,4 @@ st.page_link(
     label=f"Volver a {nombre_zona}",
     icon=":material/arrow_back:",
 )
-st.page_link("app.py", label="Volver al inicio", icon=":material/keyboard_double_arrow_left:")
+st.page_link("pages/0_Inicio.py", label="Volver al inicio", icon=":material/keyboard_double_arrow_left:")

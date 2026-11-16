@@ -9,7 +9,8 @@ Aquí vive lo que se repite en varias pantallas. No hay lógica de datos.
 
 | Archivo | Qué aporta |
 |---|---|
-| `ui.py` | `aplicar_estilos()` y `encabezado()` |
+| `ui.py` | `aplicar_estilos()` instala la hoja en `<head>` y `encabezado()` |
+| `movimiento.py` | Guion de entrada de página, revelado al scroll y barra de progreso |
 | `tarjeta.py` | Tarjeta de una pieza con imagen, estado y botón |
 | `mapa.py` | Fondo de zona y marcadores encima, en sus coordenadas |
 | `zonas.py` | Página común de las tres zonas |
@@ -26,6 +27,9 @@ Aquí vive lo que se repite en varias pantallas. No hay lógica de datos.
   La única excepción son las coordenadas de los marcadores: `mapa.py` genera
   un `<style>` mínimo con `left`/`top`, porque salen de `posiciones.json` y
   cambian con cada zona.
+- Todo el movimiento vive en `movimiento.py`. Las clases que ocultan contenido
+  (`fe1-revelar`) solo las pone el guion: sin JavaScript la página se ve
+  completa, y con `prefers-reduced-motion` no se anima nada.
 - Usar las clases `fe1-*` que ya existen (`.fe1-hero`, `.fe1-badge`, etc.).
 
 ## Reglas
